@@ -1,6 +1,6 @@
 <template>
   <div>
-    <table class="table table-striped">
+    <table class="table table-bordered table-striped mt-5">
       <thead>
         <tr>
           <th>bilhete_id</th>
@@ -79,7 +79,3 @@ export default {
   },
 }
 </script>
-
-<style>
-/* Estilos do componente (opcional) */
-</style>
