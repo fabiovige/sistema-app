@@ -8,94 +8,39 @@
     </div>
   </div>
 
-  <input
-    id="input-filtrar-usuarios"
-    class="form-control mt-3"
-    type="text"
+  <FilterInputComponent
     placeholder="Digite para filtrar"
-    v-model="termoFiltro"
-  />
+    :termoFiltro="termoFiltro"
+    @updateTermoFiltro="atualizarTermoFiltro"
+  ></FilterInputComponent>
 
   <div class="row mt-3">
     <div class="col-12">
-      <table class="table table-bordered table-striped">
-        <thead>
-          <tr>
-            <th>id</th>
-            <th>Nome</th>
-            <th>E-mail</th>
-            <th>Telefone</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="usuario in usuariosPaginados" :key="usuario.id">
-            <td>{{ usuario.id }}</td>
-            <td>{{ usuario.nome }}</td>
-            <td>{{ usuario.email }}</td>
-            <td>{{ usuario.telefone }}</td>
-            <td>
-              <button class="btn btn-success">
-                <i class="bi bi-check"></i> Emitir
-              </button>
-            </td>
-          </tr>
-        </tbody>
-        <!-- Adicione a paginação aqui -->
-      </table>
-      <nav aria-label="Page navigation example">
-        <ul class="pagination">
-          <li class="page-item" :class="{ disabled: paginaAtual === 1 }">
-            <a class="page-link" href="#" @click="paginaAnterior">Anterior</a>
-          </li>
-          <li class="page-item" v-if="paginasNavegaveis[0] !== 1">
-            <a class="page-link" href="#" @click="mudarPagina(1)">1</a>
-          </li>
-          <li class="page-item" v-if="paginasNavegaveis[0] > 2">
-            <span class="page-link">...</span>
-          </li>
-          <li
-            class="page-item"
-            v-for="pagina in paginasNavegaveis"
-            :key="pagina"
-            :class="{ active: pagina === paginaAtual }"
-          >
-            <a class="page-link" href="#" @click="mudarPagina(pagina)">{{
-              pagina
-            }}</a>
-          </li>
-          <li
-            class="page-item"
-            v-if="
-              paginasNavegaveis[paginasNavegaveis.length - 1] < totalPaginas - 1
-            "
-          >
-            <span class="page-link">...</span>
-          </li>
-          <li
-            class="page-item"
-            v-if="
-              paginasNavegaveis[paginasNavegaveis.length - 1] !== totalPaginas
-            "
-          >
-            <a class="page-link" href="#" @click="mudarPagina(totalPaginas)">{{
-              totalPaginas
-            }}</a>
-          </li>
-          <li
-            class="page-item"
-            :class="{ disabled: paginaAtual === totalPaginas }"
-          >
-            <a class="page-link" href="#" @click="proximaPagina">Próxima</a>
-          </li>
-        </ul>
-      </nav>
+
+      <TableComponent
+        :colunas="colunas"
+        :itens="usuariosPaginados"
+        :hasActions="true"
+      ></TableComponent>
+
+      <PaginationComponent
+        :paginaAtual="paginaAtual"
+        :totalPaginas="totalPaginas"
+        :paginasNavegaveis="paginasNavegaveis"
+        @mudarPagina="mudarPagina"
+        @proximaPagina="proximaPagina"
+        @paginaAnterior="paginaAnterior"
+      ></PaginationComponent>
     </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+import PaginationComponent from "./UI/PaginationComponent.vue"; // Importando o componente
+import FilterInputComponent from "./UI/FilterInputComponent.vue"; // Importando o componente
+import TableComponent from "./UI/TableComponent.vue"; // Importe o novo componente
+
 export default {
   name: "PainelUsuarios",
   data: () => {
@@ -104,15 +49,24 @@ export default {
       itensPorPagina: 5,
       paginaAtual: 1,
       paginasNavegaveisLimite: 5,
+      colunas: [
+        { key: "id", label: "ID ok" },
+        { key: "nome", label: "Nome" },
+        { key: "email", label: "E-mail" },
+        { key: "telefone", label: "Telefone" },
+      ],
     };
   },
-  components: {},
+  components: {
+    PaginationComponent,
+    FilterInputComponent,
+    TableComponent,
+  },
   computed: {
     ...mapGetters(["getUsuarios"]),
     usuariosFiltrados() {
       this.realizarPesquisa();
       const termoFiltroLowerCase = this.termoFiltro.toLowerCase();
-      console.log(termoFiltroLowerCase);
       return this.getUsuarios.filter(
         (usuario) =>
           usuario.nome.toLowerCase().includes(termoFiltroLowerCase) ||
@@ -151,8 +105,11 @@ export default {
     },
   },
   methods: {
+    atualizarTermoFiltro(novoTermoFiltro) {
+      this.termoFiltro = novoTermoFiltro;
+      this.realizarPesquisa();
+    },
     created() {
-      console.log("created...");
       this.getUsuarios();
     },
     proximaPagina() {
