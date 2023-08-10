@@ -16,7 +16,6 @@
 
   <div class="row mt-3">
     <div class="col-12">
-
       <TableComponent
         :colunas="colunas"
         :itens="usuariosPaginados"
@@ -41,8 +40,21 @@ import PaginationComponent from "./UI/PaginationComponent.vue"; // Importando o 
 import FilterInputComponent from "./UI/FilterInputComponent.vue"; // Importando o componente
 import TableComponent from "./UI/TableComponent.vue"; // Importe o novo componente
 
+import { inject } from 'vue';
+
 export default {
   name: "PainelUsuarios",
+  setup() {
+    // Injetando a função de atualização do breadcrumb
+    const updateBreadcrumb = inject('updateBreadcrumb');
+
+    updateBreadcrumb([
+      { name: 'Dashboard', link: '#' },
+      { name: 'Painel de Usuário OK' },
+    ]);
+
+    // ...
+  },
   data: () => {
     return {
       termoFiltro: "",
