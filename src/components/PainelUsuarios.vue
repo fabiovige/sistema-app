@@ -32,6 +32,11 @@
       ></PaginationComponent>
     </div>
   </div>
+  <div class="row mt-3">
+    <div class="col-12">
+      <AutoCompleteSelect :fetchItems="fetchUsers" />
+    </div>
+  </div>
 </template>
 
 <script>
@@ -39,21 +44,20 @@ import { mapGetters } from "vuex";
 import PaginationComponent from "./UI/PaginationComponent.vue"; // Importando o componente
 import FilterInputComponent from "./UI/FilterInputComponent.vue"; // Importando o componente
 import TableComponent from "./UI/TableComponent.vue"; // Importe o novo componente
+import AutoCompleteSelect from "./UI/AutoCompleteSelect.vue";
 
-import { inject } from 'vue';
+import { inject } from "vue";
 
 export default {
   name: "PainelUsuarios",
   setup() {
     // Injetando a função de atualização do breadcrumb
-    const updateBreadcrumb = inject('updateBreadcrumb');
+    const updateBreadcrumb = inject("updateBreadcrumb");
 
     updateBreadcrumb([
-      { name: 'Dashboard', link: '#' },
-      { name: 'Painel de Usuário OK' },
+      { name: "Dashboard", link: "#" },
+      { name: "Painel de Usuário" },
     ]);
-
-    // ...
   },
   data: () => {
     return {
@@ -73,6 +77,7 @@ export default {
     PaginationComponent,
     FilterInputComponent,
     TableComponent,
+    AutoCompleteSelect,
   },
   computed: {
     ...mapGetters(["getUsuarios"]),
@@ -117,6 +122,21 @@ export default {
     },
   },
   methods: {
+    fetchUsers(term) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const filteredUsers = this.getUsuarios.filter((usuario) =>
+            usuario.nome.toLowerCase().includes(term.toLowerCase())
+          );
+          resolve(
+            filteredUsers.map((user) => ({
+              value: user.nome, // O texto que será exibido
+              id: user.id, // Um identificador único
+            }))
+          );
+        }, 1000);
+      });
+    },
     atualizarTermoFiltro(novoTermoFiltro) {
       this.termoFiltro = novoTermoFiltro;
       this.realizarPesquisa();
